@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "750169559469",
+    "firebase_url": "https://avaa-90dda.firebaseio.com",
+    "project_id": "avaa-90dda",
+    "storage_bucket": "avaa-90dda.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:750169559469:android:0ae36d41571bbe50",
+        "android_client_info": {
+          "package_name": "io.antmedia.android.liveVideoBroadcaster"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "750169559469-aqkn6g8kkaogbairedvai6j43r071374.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.antmedia.android.liveVideoBroadcaster",
+            "certificate_hash": "a0fce3ab5ffc1d7163b7022f690969403e4089b2"
+          }
+        },
+        {
+          "client_id": "750169559469-7rdtksboi3n40s7qoq1qh4h0hblh3r9d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdMkJBxYXXBQ8jrLsYoVkEV10saE2le2A"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "750169559469-7rdtksboi3n40s7qoq1qh4h0hblh3r9d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

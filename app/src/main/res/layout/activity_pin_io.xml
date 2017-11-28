@@ -1,0 +1,98 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/default_background"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+
+    tools:context="io.antmedia.android.PinIOActivity">
+
+    <ScrollView
+        android:id="@+id/pinScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@drawable/default_textcolor"
+                android:text="@string/pinio_sectiontitle" />
+
+            <io.antmedia.android.ui.utils.ExpandableHeightExpandableListView
+                android:id="@+id/pinListView"
+                android:layout_width="match_parent"
+                android:layout_height="100px"
+                android:layout_marginTop="10dp"
+                android:background="#ffffff"
+                android:childDivider="#00000000"
+                android:groupIndicator="@null" />
+            <TextView
+                android:id="@+id/lvb"
+                style="@style/Base.Widget.AppCompat.Button.Borderless"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="openVideoBroadcaster"
+                android:text="LIVE VIDEO BROADCASTER" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="LIVE VIDEO PLAYER"
+                android:onClick="openVideoPlayer"
+                style="@style/Base.Widget.AppCompat.Button.Borderless"/>
+
+            <EditText
+                android:id="@+id/editText1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text|textNoSuggestions|textPersonName" />
+
+            <Button
+                android:id="@+id/track"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="LIVE LOCATION"
+                android:onClick="trac"/>
+
+            <Button
+                android:id="@+id/button1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Start" />
+
+            <Button
+                android:id="@+id/parent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="parenttrack"
+                android:text="LIVE TRACK" />
+
+            <Button
+                android:id="@+id/stopsr"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="STOP SR"
+                android:onClick="stsr"/>
+
+            <Button
+                android:id="@+id/lo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="logout"
+                android:text="LOGOUT" />
+
+
+        </LinearLayout>
+
+    </ScrollView>
+</LinearLayout>
