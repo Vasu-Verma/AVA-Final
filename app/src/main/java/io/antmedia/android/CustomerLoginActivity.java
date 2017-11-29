@@ -23,6 +23,13 @@ public class CustomerLoginActivity extends AppCompatActivity {
     String bgcode;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener firebaseAuthListener;
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

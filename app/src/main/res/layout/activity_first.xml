@@ -5,18 +5,35 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="io.antmedia.android.FirstActivity"
+    android:background="@drawable/front_background"
     android:orientation="vertical">
 
-
+    <ImageView
+        android:layout_marginTop="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:src="@drawable/sticker"/>
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Bag app"
+        android:textColor="#FFFFF0"
+        android:background="#000000"
+        android:layout_marginRight="80dp"
+        android:layout_marginLeft="80dp"
+        android:layout_marginTop="60dp"
+        android:layout_marginBottom="10dp"
         android:id="@+id/driver"/>
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Parent app"
+        android:textColor="#FFFFF0"
+        android:background="#000000"
+        android:layout_marginRight="80dp"
+        android:layout_marginLeft="80dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
         android:id="@+id/customer"/>
 
 </LinearLayout>
