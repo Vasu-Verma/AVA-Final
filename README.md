@@ -8,5 +8,7 @@ Vasu Verma
 Akash Deep Singh
 
 References:
+
 https://github.com/adafruit/Bluefruit_LE_Connect_Android
+
 https://github.com/ant-media/LiveVideoBroadcaster
