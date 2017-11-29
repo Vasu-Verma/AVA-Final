@@ -1,14 +1,23 @@
 package io.antmedia.android;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,16 +53,18 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-import io.antmedia.android.liveVideoBroadcaster.LiveVideoBroadcasterActivity;
-import io.antmedia.android.liveVideoBroadcaster.R;
 import io.antmedia.android.ble.BleManager;
 import io.antmedia.android.ble.BleUtils;
+import io.antmedia.android.liveVideoBroadcaster.LiveVideoBroadcasterActivity;
+import io.antmedia.android.liveVideoBroadcaster.R;
 import io.antmedia.android.liveVideoPlayer.LiveVideoPlayerActivity;
 import io.antmedia.android.settings.ConnectedSettingsActivity;
 import io.antmedia.android.ui.utils.ExpandableHeightExpandableListView;
 
 public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecognitionServerEvents{
 
+    int final_flag = 0;
+    private static final int MY_PERMISSIONS_REQUEST_SEND_SMS =0 ;
     private final static String TAG = UartActivity.class.getSimpleName();
     private static final int kActivityRequestCode_ConnectedSettingsActivity = 0;
     private static final long CAPABILITY_QUERY_TIMEOUT = 15000;      // in milliseconds
@@ -568,6 +579,7 @@ public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecog
                 String[] temp = response.Results[i].DisplayText.split(" ");
                 if(response.Results[i].Confidence == Confidence.High || response.Results[i].Confidence == Confidence.Normal)
                     for(int j=0;j<temp.length;j++){
+                        Log.d(temp[j], "onFinalResponseReceived: ");
                         if(temp[j].toLowerCase().equals("help")) {
                             this.WriteLine("Found Help Cry");
                             PinData pinData = mPins.get(0);
@@ -576,6 +588,8 @@ public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecog
                             int newState = PinData.kDigitalValue_High;
                             setDigitalValue(pinData, newState);
                             mPinListAdapter.notifyDataSetChanged();
+                            sendMessage();
+                            raiseAlarm();
                             j = temp.length;
                             i = response.Results.length;
                             break;
@@ -586,6 +600,17 @@ public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecog
             _startButton.performClick();
 //            this.WriteLine();
         }
+    }
+
+    private void raiseAlarm() {
+        try {
+            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+            Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+            r.play();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+//        SystemClock.sleep(30000);
     }
 
     /**
@@ -801,7 +826,7 @@ public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecog
     @Override
     public void onDataAvailable(BluetoothGattCharacteristic characteristic) {
         byte[] data = characteristic.getValue();
-        Log.d(TAG, "received: " + BleUtils.bytesToHexWithSpaces(data));
+//        Log.d(TAG, "received: " + BleUtils.bytesToHexWithSpaces(data));
 
         switch (mUartStatus) {
             case kUartStatus_QueryCapabilities:
@@ -834,7 +859,7 @@ public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecog
     private ArrayList<Byte> queryCapabilitiesDataBuffer = new ArrayList<>();
 
     private void queryCapabilities() {
-        Log.d(TAG, "queryCapabilities");
+//        Log.d(TAG, "queryCapabilities");
 
         // Set status
         mPins.clear();
@@ -855,7 +880,7 @@ public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecog
         for (final byte dataByte : data) {
             queryCapabilitiesDataBuffer.add(dataByte);
             if (dataByte == SYSEX_END) {
-                Log.d(TAG, "Finished receiving capabilities");
+//                Log.d(TAG, "Finished receiving capabilities");
                 queryAnalogMapping();
                 break;
             }
@@ -875,7 +900,7 @@ public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecog
     private ArrayList<Byte> queryAnalogMappingDataBuffer = new ArrayList<>();
 
     private void queryAnalogMapping() {
-        Log.d(TAG, "queryAnalogMapping");
+//        Log.d(TAG, "queryAnalogMapping");
 
         // Set status
         mUartStatus = kUartStatus_QueryAnalogMapping;
@@ -893,7 +918,7 @@ public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecog
         for (final byte dataByte : data) {
             queryAnalogMappingDataBuffer.add(dataByte);
             if (dataByte == SYSEX_END) {
-                Log.d(TAG, "Finished receiving Analog Mapping");
+//                Log.d(TAG, "Finished receiving Analog Mapping");
                 endPinQuery(false);
                 break;
             }
@@ -901,7 +926,7 @@ public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecog
     }
 
     public void cancelQueryCapabilities() {
-        Log.d(TAG, "timeout: cancelQueryCapabilities");
+//        Log.d(TAG, "timeout: cancelQueryCapabilities");
         endPinQuery(true);
     }
 
@@ -975,20 +1000,20 @@ public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecog
                     newMode  = PinData.kMode_Analog;
                     setControlMode(pinData, newMode);
                     mPins.add(pinData);
-                    Log.d(TAG, "pin id: " + pinNumber + " isInput: " + (pinData.isInput ? "yes" : "no") + " isOutput: " + (pinData.isOutput ? "yes" : "no") + " analog: " + (pinData.isAnalog ? "yes" : "no") + " isInputPullup: " + (pinData.isInputPullup ? "yes" : "no"));
+//                    Log.d(TAG, "pin id: " + pinNumber + " isInput: " + (pinData.isInput ? "yes" : "no") + " isOutput: " + (pinData.isOutput ? "yes" : "no") + " analog: " + (pinData.isAnalog ? "yes" : "no") + " isInputPullup: " + (pinData.isInputPullup ? "yes" : "no"));
                 RunLights();
                 return true;
 
         } else {
-            Log.d(TAG, "invalid capabilities received");
+//            Log.d(TAG, "invalid capabilities received");
             if (capabilitiesData.size() <= 2) {
-                Log.d(TAG, "capabilitiesData size <= 2");
+//                Log.d(TAG, "capabilitiesData size <= 2");
             }
             if (capabilitiesData.get(0) != SYSEX_START) {
-                Log.d(TAG, "SYSEX_START not present");
+//                Log.d(TAG, "SYSEX_START not present");
             }
             if (endIndex < 0) {
-                Log.d(TAG, "SYSEX_END not present");
+//                Log.d(TAG, "SYSEX_END not present");
             }
 
             return false;
@@ -996,7 +1021,7 @@ public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecog
     }
 
     private void RunLights() {
-        Log.d(TAG, "RunLights: ");
+//        Log.d(TAG, "RunLights: ");
         PinData pinData = mPins.get(1);
 //        pinData.isOutput = true;
 //        pinData.isInput = false;
@@ -1021,7 +1046,7 @@ public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecog
                         mPins.get(indexOfPinNumber).analogPinId = dataByte & 0xff;
                         Log.d(TAG, "pin id: " + pinNumber + " analog id: " + dataByte);
                     } else {
-                        Log.d(TAG, "warning: trying to set analog id: " + dataByte + " for pin id: " + pinNumber);
+//                        Log.d(TAG, "warning: trying to set analog id: " + dataByte + " for pin id: " + pinNumber);
                     }
 
                 }
@@ -1029,7 +1054,7 @@ public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecog
             }
             return true;
         } else {
-            Log.d(TAG, "invalid analog mapping received");
+//            Log.d(TAG, "invalid analog mapping received");
             return false;
         }
     }
@@ -1123,7 +1148,7 @@ public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecog
     private void setDigitalValue(PinData pin, int value) {
         // Store
         pin.digitalValue = value;
-        Log.d(TAG, "setDigitalValue: " + value + " for pin id: " + pin.digitalPinId);
+//        Log.d(TAG, "setDigitalValue: " + value + " for pin id: " + pin.digitalPinId);
 
         // Write value
         int port = pin.digitalPinId / 8;
@@ -1155,7 +1180,7 @@ public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecog
         // Limit the amount of messages sent over Uart
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastSentAnalogValueTime >= 100) {
-            Log.d(TAG, "pwm elapsed: " + (currentTime - lastSentAnalogValueTime));
+//            Log.d(TAG, "pwm elapsed: " + (currentTime - lastSentAnalogValueTime));
             lastSentAnalogValueTime = currentTime;
 
             // Store
@@ -1183,7 +1208,7 @@ public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecog
 
             return true;
         } else {
-            Log.d(TAG, "Won't send: Too many slider messages");
+//            Log.d(TAG, "Won't send: Too many slider messages");
             return false;
         }
     }
@@ -1218,18 +1243,18 @@ public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecog
                     if (receivedPinStateDataBuffer2.size() >= 6) {
                         pin.analogValue = pinState + (getUnsignedReceivedPinState(5) << 7);
                     } else {
-                        Log.d(TAG, "Warning: received pinstate for analog pin without analogValue");
+//                        Log.d(TAG, "Warning: received pinstate for analog pin without analogValue");
                     }
                 } else {
                     if (pinState == PinData.kDigitalValue_Low || pinState == PinData.kDigitalValue_High) {
                         pin.digitalValue = pinState;
                     } else {
-                        Log.d(TAG, "Warning: received pinstate with unknown digital value. Valid (0,1). Received: " + pinState);
+//                        Log.d(TAG, "Warning: received pinstate with unknown digital value. Valid (0,1). Received: " + pinState);
                     }
                 }
 
             } else {
-                Log.d(TAG, "Warning: received pinstate for unknown digital pin id: " + pinDigitalId);
+//                Log.d(TAG, "Warning: received pinstate for unknown digital pin id: " + pinDigitalId);
             }
 
             //  Remove from the buffer the bytes parsed
@@ -1243,7 +1268,7 @@ public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecog
             boolean isAnalogReportingMessage = data0 >= 0xe0 && data0 <= 0xef;
 //            Log.d(TAG, "data0: "+data0);
 
-            Log.d(TAG, "receivedPinStateDataBuffer size: " + receivedPinStateDataBuffer2.size());
+//            Log.d(TAG, "receivedPinStateDataBuffer size: " + receivedPinStateDataBuffer2.size());
             //          Log.d(TAG, "data[0]="+BleUtils.byteToHex(receivedPinStateDataBuffer.get(0))+ "data[1]="+BleUtils.byteToHex(receivedPinStateDataBuffer.get(1)));
 
             while (receivedPinStateDataBuffer2.size() >= 3 && (isDigitalReportingMessage || isAnalogReportingMessage)) {     // Check that current message length is at least 3 bytes
@@ -1272,17 +1297,26 @@ public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecog
                     if (index >= 0) {
                         PinData pin = mPins.get(index);
                         pin.analogValue = value;
-                        if(value>20) {
-                            PinData pinData = mPins.get(0);
-                            pinData.isOutput = true;
-                            pinData.isInput = false;
-                            int newState = PinData.kDigitalValue_High;
-                            setDigitalValue(pinData, newState);
-                            mPinListAdapter.notifyDataSetChanged();
+                        Log.d(String.valueOf(value), "receivedPinState: ");
+                        if(value>15) {
+//                                Log.d(String.valueOf(value), "receivedPinState: ");
+                                PinData pinData = mPins.get(0);
+                                pinData.isOutput = true;
+                                pinData.isInput = false;
+                                int newState = PinData.kDigitalValue_High;
+                                setDigitalValue(pinData, newState);
+
+                                mPinListAdapter.notifyDataSetChanged();
+                                sendMessage();
+                                raiseAlarm();
+
+
+                        }else{
+                            final_flag = 0;
                         }
                         Log.d(TAG, "received analog value: " + value + " pin analog id: " + analogPinId + " digital Id: " + index);
                     } else {
-                        Log.d(TAG, "Warning: received pinstate for unknown analog pin id: " + index);
+//                        Log.d(TAG, "Warning: received pinstate for unknown analog pin id: " + index);
                     }
                 }
 
@@ -1313,6 +1347,22 @@ public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecog
         });
     }
 
+    private void sendMessage() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
+                != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.SEND_SMS)) {
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.SEND_SMS},
+                        MY_PERMISSIONS_REQUEST_SEND_SMS);
+            }
+        }
+        String phoneNumber = "9999029972";
+//        String message = txtMessage.getText().toString();
+        SmsManager.getDefault().sendTextMessage(phoneNumber, null, "Your child is in danger. Open AVA app to track him now", null, null);
+    }
+
     private void updatePinsForReceivedStates(int pinStates, int port) {
         int offset = 8 * port;
 
@@ -1327,7 +1377,7 @@ public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecog
             if (index >= 0) {
                 PinData pin = mPins.get(index);
                 pin.digitalValue = state;
-                //Log.d(TAG, "update pinid: " + digitalId + " digitalValue: " + state);
+//                Log.d(TAG, "update pinid: " + digitalId + " digitalValue: " + state);
             }
         }
     }
@@ -1404,7 +1454,7 @@ public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecog
     }
 
     public void onClickOutputType(View view) {
-        Log.d(TAG, "onClickOutputType: ");
+//        Log.d(TAG, "onClickOutputType: ");
         PinData pinData = mPins.get(0);
         int newState = PinData.kDigitalValue_High;
         setDigitalValue(pinData, newState);
@@ -1415,7 +1465,7 @@ public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecog
     @Override
     public void onDisconnected() {
         super.onDisconnected();
-        Log.d(TAG, "Disconnected. Back to previous activity");
+//        Log.d(TAG, "Disconnected. Back to previous activity");
         setResult(-1);      // Unexpected Disconnect
         finish();
     }
@@ -1429,14 +1479,14 @@ public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecog
         if (mIsActivityFirstRun) {
             reset();
         }
-        Log.d(TAG, "onServicesDiscovered: ");
+//        Log.d(TAG, "onServicesDiscovered: ");
     }
 
 
     private void sendHexData(byte[] data) {
         if (BuildConfig.DEBUG) {
             String hexRepresentation = BleUtils.bytesToHexWithSpaces(data);
-            Log.d(TAG, "sendHex: " + hexRepresentation);
+//            Log.d(TAG, "sendHex: " + hexRepresentation);
         }
         sendData(data);
     }
@@ -1463,12 +1513,12 @@ public class PinIOActivity extends UartInterfaceActivity implements ISpeechRecog
             // Start process
             queryCapabilities();
         } else {
-            Log.d(TAG, "error: queryCapabilities called while querying capabilities");
+//            Log.d(TAG, "error: queryCapabilities called while querying capabilities");
         }
     }
 
     private void defaultCapabilitiesAssumedDialog() {
-        Log.d(TAG, "QueryCapabilities not found");
+//        Log.d(TAG, "QueryCapabilities not found");
 
         // Show dialog
         new AlertDialog.Builder(this)

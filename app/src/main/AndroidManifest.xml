@@ -13,6 +13,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
 
     <uses-feature
         android:glEsVersion="0x00020000"
@@ -35,12 +36,28 @@
         <activity
             android:name=".LiveVideoBroadcasterActivity"
             android:theme="@style/AppThemeDark" />
-        <activity android:name="io.antmedia.android.CustomerLoginActivity" />
-        <activity android:name="io.antmedia.android.DriverLoginActivity" />
-        <activity android:name="io.antmedia.android.MainActivity" />
-        <activity android:name="io.antmedia.android.MainActivity2" />
-        <activity android:name="io.antmedia.android.PinIOActivity" />
+        <activity
+            android:name="io.antmedia.android.CustomerLoginActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name="io.antmedia.android.DriverLoginActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="io.antmedia.android.MainActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name="io.antmedia.android.MainActivity2"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name="io.antmedia.android.PinIOActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
         <activity android:name="io.antmedia.android.Track_Parent" />
+
         <activity
             android:name="io.antmedia.android.liveVideoPlayer.LiveVideoPlayerActivity"
             android:theme="@style/AppThemeDark" />

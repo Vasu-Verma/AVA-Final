@@ -1,11 +1,23 @@
 package io.antmedia.android;
 
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -13,22 +25,32 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import io.antmedia.android.liveVideoBroadcaster.R;
+
+import static io.antmedia.android.liveVideoBroadcaster.R.id.location;
+
 /**
- * Created by AnamBhatia on 26/11/17.
+ * Created by Vasu Verma on 26/11/17.
  */
 
-public class Track_Parent extends AppCompatActivity{
+public class Track_Parent extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
 
     private FirebaseAuth mAuth;
     String bgcode;
     TextView loc;
+    GoogleMap googleMap;
+    GoogleApiClient mGoogleApiClient;
+    public LatLng latLng = null;
     @Override
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(io.antmedia.android.liveVideoBroadcaster.R.layout.parent_track);
 
-        loc=(TextView) findViewById(io.antmedia.android.liveVideoBroadcaster.R.id.location);
+        loc=(TextView) findViewById(location);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.googleMap);
+        mapFragment.getMapAsync(this);
         mAuth = FirebaseAuth.getInstance();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference myRef = database.getReference();
@@ -64,6 +86,15 @@ public class Track_Parent extends AppCompatActivity{
                         String la = dataSnapshot.child(bgcode).child("l").child("0").getValue().toString();
                         String lo = dataSnapshot.child(bgcode).child("l").child("1").getValue().toString();
                         loc.setText(la + ", " + lo);
+                        latLng = new LatLng(Double.parseDouble(la),Double.parseDouble(lo));
+                        if(googleMap!=null) {
+                            googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                            googleMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+                            googleMap.addMarker(new MarkerOptions()
+                                    .position(latLng)
+                                    .title("Your child's location"));
+                        }
+
 
                     }
 
@@ -119,11 +150,51 @@ public class Track_Parent extends AppCompatActivity{
     }
 
 
+    @Override
+    public void onLocationChanged(Location location) {
+        if(latLng!=null){
+            googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            googleMap.animateCamera(CameraUpdateFactory.zoomTo(11));
+        }
 
+    }
 
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        if(latLng!=null){
+            googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            googleMap.animateCamera(CameraUpdateFactory.zoomTo(11));
+        }
 
+    }
 
+    @Override
+    public void onConnectionSuspended(int i) {
 
+    }
 
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googlemap) {
+        googleMap = googlemap;
+        buildGoogleApiClient();
+        if(latLng!=null){
+            googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            googleMap.animateCamera(CameraUpdateFactory.zoomTo(11));
+        }
+
+    }
+
+    private void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        mGoogleApiClient.connect();
+    }
 }

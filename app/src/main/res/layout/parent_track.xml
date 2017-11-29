@@ -11,6 +11,13 @@
         android:textSize="18sp"
         android:textStyle="bold" />
 
+    <fragment
+        android:id="@+id/googleMap"
+        android:layout_width="match_parent"
+        android:layout_height="500dp"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_below="@+id/location" />
+
     <Button
         android:id="@+id/stopbtn"
         android:layout_width="match_parent"
